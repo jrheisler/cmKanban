@@ -43,7 +43,7 @@ function ensureIdentityAvailable() {
   const clientId = manifest?.oauth2?.client_id;
   if (!clientId || /YOUR_GOOGLE_CLIENT_ID/.test(clientId)) {
     throw new Error(
-      'Google Drive integration requires a configured OAuth2 client ID. Update manifest.json with your client ID before connecting.'
+      'Google Drive integration needs a real OAuth2 client ID. Follow the Google Drive setup guide in docs/google-drive-setup.md and update manifest.json before connecting.'
     );
   }
 }
