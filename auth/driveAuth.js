@@ -15,7 +15,7 @@ export function ensureDriveOAuthConfigured() {
   const clientId = getManifestClientId();
   if (!clientId || clientId === PLACEHOLDER_CLIENT_ID) {
     throw new Error(
-      'Google OAuth client ID missing. Replace the placeholder in manifest.json (see docs/google-drive-setup.md).'
+      'Google OAuth client ID missing. Replace the placeholder in manifest.json (see docs/google-drive-setup.md for why this ID is shared across users).'
     );
   }
 }
