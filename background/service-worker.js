@@ -1,4 +1,11 @@
-import { loadState, initDefault, saveState, addCard, getActiveBoard } from '../sidepanel/state.js';
+import {
+  loadState,
+  initDefault,
+  saveState,
+  addCard,
+  getActiveBoard,
+  columnCardCount
+} from '../sidepanel/state.js';
 
 chrome.runtime.onInstalled.addListener(async () => {
   try {
@@ -27,6 +34,25 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
   const board = getActiveBoard(state);
   const firstColumnId = board?.columns?.[0]?.id;
   if (!board || !firstColumnId) return;
+
+  const firstColumn = board.columns.find((column) => column.id === firstColumnId);
+  const limit = firstColumn?.wip;
+  if (typeof limit === 'number' && limit !== null) {
+    const count = columnCardCount(board, firstColumnId);
+    if (count + 1 > limit) {
+      try {
+        await chrome.notifications.create({
+          type: 'basic',
+          iconUrl: 'icons/icon128.png',
+          title: 'KanbanX',
+          message: `${firstColumn?.name ?? 'Column'} is at its WIP limit.`
+        });
+      } catch (error) {
+        console.info('KanbanX: WIP notification skipped', error);
+      }
+      return;
+    }
+  }
 
   const title = (info.selectionText?.slice(0, 120) || tab?.title || 'New card').trim();
   const nextCard = {

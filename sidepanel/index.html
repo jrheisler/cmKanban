@@ -9,10 +9,18 @@
   <body>
     <header>
       <h1>KanbanX</h1>
+      <div class="board-controls" role="group" aria-label="Board controls">
+        <label class="sr-only" for="boardSelect">Active board</label>
+        <select id="boardSelect" aria-label="Select board"></select>
+        <button id="addBoard" type="button" title="Add board">+ Board</button>
+        <button id="renameBoard" type="button" title="Rename board">Rename</button>
+        <button id="deleteBoard" type="button" title="Delete board">Delete</button>
+      </div>
       <label class="sr-only" for="search">Search cards</label>
       <input id="search" placeholder="Search (/)" autocomplete="off" />
       <button id="addColumn" type="button">+ Column</button>
     </header>
+    <div id="notice" role="status" aria-live="polite"></div>
     <main id="board" aria-live="polite" aria-label="Kanban board columns"></main>
     <script type="module" src="app.js"></script>
   </body>

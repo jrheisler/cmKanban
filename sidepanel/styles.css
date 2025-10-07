@@ -16,10 +16,18 @@ body {
   font: 14px/1.45 system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
   background: #0f1115;
   color: #e6e6e6;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+body.drawer-open {
+  overflow: hidden;
 }
 
 header {
   display: flex;
+  flex-wrap: wrap;
   gap: 0.5rem;
   align-items: center;
   padding: 0.5rem 0.75rem;
@@ -30,6 +38,10 @@ header {
   z-index: 10;
 }
 
+header > * {
+  flex-shrink: 0;
+}
+
 header h1 {
   font-size: 14px;
   margin: 0;
@@ -37,8 +49,15 @@ header h1 {
   letter-spacing: 0.2px;
 }
 
+.board-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+}
+
+#boardSelect,
 #search {
-  flex: 1;
   padding: 0.45rem 0.6rem;
   background: #0c0e13;
   border: 1px solid #1b1f2a;
@@ -47,12 +66,21 @@ header h1 {
   outline: none;
 }
 
+#boardSelect {
+  min-width: 150px;
+}
+
+#search {
+  flex: 1 1 220px;
+}
+
+#boardSelect:focus,
 #search:focus {
   border-color: #334155;
   box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.25);
 }
 
-#addColumn {
+header button {
   padding: 0.45rem 0.7rem;
   background: #111827;
   border: 1px solid #1f2937;
@@ -61,18 +89,33 @@ header h1 {
   cursor: pointer;
 }
 
-#addColumn:hover {
+header button:hover {
   background: #0f172a;
 }
 
+#notice {
+  min-height: 1.5rem;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.9rem;
+  color: #f97316;
+}
+
+#notice[data-variant='danger'] {
+  color: #f87171;
+}
+
+#notice[data-variant='success'] {
+  color: #34d399;
+}
+
 #board {
+  flex: 1 1 auto;
   display: grid;
   grid-auto-flow: column;
   grid-auto-columns: 280px;
   gap: 0.75rem;
   padding: 0.75rem;
   overflow: auto;
-  height: calc(100vh - 56px);
 }
 
 .column {
@@ -146,6 +189,10 @@ header h1 {
   flex-wrap: wrap;
 }
 
+.card .meta:empty {
+  display: none;
+}
+
 .add-card {
   margin: 0.6rem;
   padding: 0.48rem 0.6rem;
@@ -169,6 +216,268 @@ header h1 {
 .empty {
   padding: 1rem;
   color: #94a3b8;
+}
+
+.drawer-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(8, 12, 20, 0.7);
+  display: flex;
+  justify-content: flex-end;
+  z-index: 50;
+}
+
+.drawer {
+  width: min(420px, 100%);
+  height: 100vh;
+  background: #0d1018;
+  border-left: 1px solid #1b1f2a;
+  padding: 1rem 1.25rem 2rem;
+  overflow-y: auto;
+  position: relative;
+}
+
+.drawer header {
+  position: sticky;
+  top: 0;
+  background: inherit;
+  padding: 0 0 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: 0;
+}
+
+.drawer header h2 {
+  font-size: 1rem;
+  margin: 0;
+}
+
+.drawer-subhead {
+  margin: 0.15rem 0 0;
+  font-size: 0.8rem;
+  opacity: 0.65;
+}
+
+.drawer header button {
+  padding: 0.35rem 0.6rem;
+  background: transparent;
+  border: 1px solid #2a3143;
+  border-radius: 0.4rem;
+  color: inherit;
+  cursor: pointer;
+}
+
+.drawer-section {
+  margin-bottom: 1.25rem;
+}
+
+.drawer-section h3 {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  opacity: 0.7;
+  margin-bottom: 0.4rem;
+}
+
+.drawer input[type='text'],
+.drawer textarea,
+.drawer select,
+.drawer input[type='date'] {
+  width: 100%;
+  padding: 0.55rem 0.6rem;
+  background: #0c0f18;
+  border: 1px solid #1f2937;
+  border-radius: 0.5rem;
+  color: inherit;
+}
+
+.drawer textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+.drawer textarea:focus,
+.drawer input:focus,
+.drawer select:focus {
+  border-color: #334155;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.25);
+  outline: none;
+}
+
+.markdown-preview {
+  padding: 0.75rem;
+  background: #0b0e16;
+  border: 1px solid #1f2937;
+  border-radius: 0.5rem;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  margin-top: 0.5rem;
+}
+
+.markdown-preview h1,
+.markdown-preview h2,
+.markdown-preview h3 {
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+  font-size: 1.05rem;
+}
+
+.markdown-preview p {
+  margin: 0.5rem 0;
+}
+
+.markdown-preview ul {
+  margin: 0.5rem 0 0.5rem 1.2rem;
+  padding: 0;
+  list-style: disc;
+}
+
+.markdown-preview code {
+  background: #1f2937;
+  padding: 0.1rem 0.3rem;
+  border-radius: 0.3rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+  font-size: 0.9em;
+}
+
+.label-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-bottom: 0.5rem;
+}
+
+.label-pill {
+  padding: 0.2rem 0.45rem;
+  background: #1f2937;
+  border-radius: 999px;
+  font-size: 0.8rem;
+}
+
+.label-pill.muted {
+  opacity: 0.6;
+  background: #111827;
+}
+
+label[for='labelInput'] {
+  display: block;
+  font-size: 0.8rem;
+  opacity: 0.7;
+  margin-bottom: 0.35rem;
+}
+
+#labelInput {
+  margin-bottom: 0.5rem;
+}
+
+.checklist {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.checklist-item {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 0.4rem;
+  align-items: center;
+  padding: 0.4rem 0.5rem;
+  background: #0b0e16;
+  border: 1px solid #1f2937;
+  border-radius: 0.45rem;
+}
+
+.checklist-item input[type='text'] {
+  width: 100%;
+  background: transparent;
+  border: 0;
+  padding: 0.2rem 0.35rem;
+  color: inherit;
+}
+
+.checklist-item input[type='checkbox'] {
+  width: 1rem;
+  height: 1rem;
+}
+
+.checklist-item button {
+  background: transparent;
+  border: 1px solid #2a3143;
+  color: inherit;
+  border-radius: 0.4rem;
+  padding: 0.2rem 0.45rem;
+  cursor: pointer;
+}
+
+.add-checklist {
+  margin-top: 0.5rem;
+  padding: 0.45rem 0.6rem;
+  background: #111827;
+  border: 1px solid #1f2937;
+  border-radius: 0.5rem;
+  color: inherit;
+  cursor: pointer;
+  text-align: left;
+}
+
+.add-checklist:hover {
+  background: #0f172a;
+}
+
+.attachments {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.attachment-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #0b0e16;
+  border: 1px solid #1f2937;
+  border-radius: 0.5rem;
+  padding: 0.45rem 0.6rem;
+}
+
+.attachment-card span {
+  font-size: 0.9rem;
+}
+
+.attachment-card button {
+  background: transparent;
+  border: 1px solid #2a3143;
+  color: inherit;
+  border-radius: 0.4rem;
+  padding: 0.25rem 0.5rem;
+  cursor: pointer;
+}
+
+.attachment-card div {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.drawer footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-top: 2rem;
+}
+
+.drawer footer button {
+  flex: 1;
+  padding: 0.55rem 0.7rem;
+  border-radius: 0.5rem;
+  border: 1px solid #ef4444;
+  background: transparent;
+  color: #fca5a5;
+  cursor: pointer;
+}
+
+.drawer footer button:hover {
+  background: rgba(239, 68, 68, 0.2);
 }
 
 .sr-only {
