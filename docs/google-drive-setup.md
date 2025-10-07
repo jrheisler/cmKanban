@@ -26,28 +26,39 @@ Use one of the organisation's shared "Standard Google Users" so the client ID is
 1. Go to **APIs & Services → Enabled APIs & services**.
 2. Click **+ Enable APIs and Services**, search for **Google Drive API**, and enable it for the project.
 
-## 5. Create the Chrome extension OAuth client
+## 5. Lock the extension ID
+
+1. Load the unpacked extension and open the background service worker console. It now prints `EXT_ID <value>` on startup.
+2. Copy the ID shown there (or from `chrome://extensions`).
+3. In the Chrome Web Store Developer Dashboard, open **Package → View public key** and copy the public key.
+4. Paste the key into [`manifest.json`](../manifest.json) under the top-level `"key"` field so the unpacked and packaged IDs stay in sync.
+
+> **Why this matters:** Google OAuth for Chrome extensions requires that the OAuth client **Item ID** matches the extension ID exactly. Setting the manifest `key` locks the ID across rebuilds.
+
+## 6. Create the Chrome extension OAuth client
 
 1. Open **APIs & Services → Credentials** and click **Create credentials → OAuth client ID**.
 2. Choose **Chrome App** as the application type.
 3. When prompted for the application ID, supply the extension ID shown in `chrome://extensions` after loading KanbanX in developer mode.
 4. Click **Create** to generate the client. Copy the **Client ID** that is displayed.
 
-## 6. Update `manifest.json`
+## 7. Update `manifest.json`
 
 1. Open the project locally and edit [`manifest.json`](../manifest.json).
 2. Replace `YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com` with the client ID you just copied.
-3. Save the file and reload the extension from `chrome://extensions`.
+3. Confirm that the `oauth2.scopes` array contains `https://www.googleapis.com/auth/drive.appdata`.
+4. Save the file and reload the extension from `chrome://extensions`.
 
 If you're preparing a build for distribution, double-check that the committed manifest contains the correct client ID. Never commit secrets such as client secrets—only the public client ID belongs in source control.
 
-## 7. Verify the integration
+## 8. Verify the integration
 
 1. Reload the side panel and click **Connect to G-Drive**.
 2. Chrome should open an OAuth prompt for the selected standard Google user.
-3. After authorising, the button should show **G-Drive Connected** and the notice should confirm the connection.
+3. The console logs a non-empty auth token (`KanbanX: Drive token acquired ...`) followed by the result of listing the AppData files (`KanbanX: AppData files ...`).
+4. After authorising, the button should show **G-Drive Connected** and the notice should confirm the connection.
 
-## 8. Rotating or replacing credentials
+## 9. Rotating or replacing credentials
 
 If you regenerate the client ID, update `manifest.json`, notify the team, and re-upload the updated package wherever it is distributed. All testers will need to reload the extension to pick up the new ID.
 

@@ -14,7 +14,7 @@ import { renderBoard } from './board.js';
 import { escapeHtml } from './templates.js';
 import { openCardDetails, syncCardDetails, closeCardDetails } from './details.js';
 import './keyboard.js';
-import { connectDrive, isDriveConnected } from './drive.js';
+import { connectDrive, isDriveConnected, listDriveAppDataFiles } from './drive.js';
 
 const elSearch = document.getElementById('search');
 const elAddColumn = document.getElementById('addColumn');
@@ -60,6 +60,7 @@ if (elConnectDrive) {
   elConnectDrive.addEventListener('click', async () => {
     await updateDriveButton({ connecting: true });
     try {
+      await listDriveAppDataFiles({ interactive: true });
       await connectDrive(state);
       await saveState(state);
       showNotice('Connected to Google Drive. Boards will sync automatically.', 'success');
