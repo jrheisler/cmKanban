@@ -47,8 +47,11 @@ export function renderBoard(state, { onState, onOpenCard, announce }) {
     const columnId = zone.dataset.colId;
     if (!cardId || !columnId) return;
 
-    const card = board.cards.find((item) => item.id === cardId);
-    const targetColumn = board.columns.find((col) => col.id === columnId);
+    const cards = Array.isArray(board.cards) ? board.cards : [];
+    const columns = Array.isArray(board.columns) ? board.columns : [];
+
+    const card = cards.find((item) => item.id === cardId);
+    const targetColumn = columns.find((col) => col.id === columnId);
     if (!card || !targetColumn) return;
 
     const sameColumn = card.columnId === columnId;
