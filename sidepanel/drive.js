@@ -38,14 +38,6 @@ function ensureIdentityAvailable() {
   if (!chrome?.identity?.getAuthToken) {
     throw new Error('Google identity API unavailable. Add "identity" permission and OAuth2 details to manifest.');
   }
-
-  const manifest = typeof chrome?.runtime?.getManifest === 'function' ? chrome.runtime.getManifest() : null;
-  const clientId = manifest?.oauth2?.client_id;
-  if (!clientId || /YOUR_GOOGLE_CLIENT_ID/.test(clientId)) {
-    throw new Error(
-      'Google Drive integration needs a real OAuth2 client ID. Follow the Google Drive setup guide in docs/google-drive-setup.md and update manifest.json before connecting.'
-    );
-  }
 }
 
 async function getAuthToken({ interactive }) {
