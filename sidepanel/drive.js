@@ -1,7 +1,12 @@
+import {
+  clearAllDriveTokens,
+  clearCachedDriveToken,
+  ensureDriveOAuthConfigured,
+  getDriveToken
+} from '../auth/driveAuth.js';
+
 const DRIVE_SETTINGS_KEY = 'kanban.drive.settings.v1';
 const DRIVE_FILE_NAME = 'kanbanx-boards.json';
-
-const PLACEHOLDER_CLIENT_ID = 'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com';
 
 async function getStoredSettings() {
   try {
@@ -36,68 +41,21 @@ function buildMultipartBody(metadata, json) {
   return { body, boundary };
 }
 
-function ensureIdentityAvailable() {
-  if (!chrome?.identity?.getAuthToken) {
-    throw new Error('Google identity API unavailable. Add "identity" permission and OAuth2 details to manifest.');
-  }
-
-  const manifest = chrome?.runtime?.getManifest?.();
-  const clientId = manifest?.oauth2?.client_id?.trim();
-
-  if (!clientId || clientId === PLACEHOLDER_CLIENT_ID) {
-    throw new Error(
-      'Google OAuth client ID missing. Replace the placeholder in manifest.json (see docs/google-drive-setup.md).'
-    );
-  }
-}
-
-async function getAuthToken({ interactive }) {
-  ensureIdentityAvailable();
-  return new Promise((resolve, reject) => {
-    try {
-      chrome.identity.getAuthToken({ interactive }, (token) => {
-        if (chrome.runtime.lastError || !token) {
-          reject(
-            new Error(
-              chrome.runtime.lastError?.message ||
-                'Unable to authorize with Google Drive.'
-            )
-          );
-          return;
-        }
-        resolve(token);
-      });
-    } catch (error) {
-      reject(error);
-    }
-  });
-}
-
-async function removeCachedAuthToken(token) {
-  if (!token || !chrome?.identity?.removeCachedAuthToken) return;
-  try {
-    await new Promise((resolve) => {
-      try {
-        chrome.identity.removeCachedAuthToken({ token }, () => {
-          resolve();
-        });
-      } catch (error) {
-        resolve();
-      }
-    });
-  } catch (error) {
-    console.warn('KanbanX: unable to remove cached auth token', error);
-  }
-}
-
 async function driveFetch(path, { method = 'GET', headers = {}, body } = {}, options = {}) {
   const { interactive = false, retryOnAuthError = false } = options;
   const url = path.startsWith('http') ? path : `https://www.googleapis.com${path}`;
 
   let token;
   try {
-    token = await getAuthToken({ interactive });
+    ensureDriveOAuthConfigured();
+    token = await getDriveToken(interactive);
   } catch (error) {
+    if (retryOnAuthError) {
+      await clearAllDriveTokens();
+      if (!interactive) {
+        return driveFetch(path, { method, headers, body }, { interactive: true, retryOnAuthError: false });
+      }
+    }
     if (!interactive) {
       console.warn('KanbanX: non-interactive token request failed', error);
       return null;
@@ -114,14 +72,33 @@ async function driveFetch(path, { method = 'GET', headers = {}, body } = {}, opt
     }
   });
 
-  if (response.status === 401 && retryOnAuthError) {
-    await removeCachedAuthToken(token);
+  if (response.status >= 400 && response.status < 500 && retryOnAuthError) {
+    await clearCachedDriveToken(token);
+    await clearAllDriveTokens();
     if (!interactive) {
       return driveFetch(path, { method, headers, body }, { interactive: true, retryOnAuthError: false });
     }
   }
 
   return { response, token };
+}
+
+export async function listDriveAppDataFiles({ interactive = true } = {}) {
+  const request = await driveFetch(
+    '/drive/v3/files?spaces=appDataFolder&pageSize=10&fields=files(id,name,modifiedTime)',
+    {},
+    { interactive, retryOnAuthError: true }
+  );
+  if (!request) {
+    return null;
+  }
+  const { response } = request;
+  if (!response.ok) {
+    throw new Error(`Failed to list Drive AppData files (${response.status})`);
+  }
+  const payload = await response.json();
+  console.info('KanbanX: AppData files', payload);
+  return payload;
 }
 
 async function findExistingFile(options = {}) {

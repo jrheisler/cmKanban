@@ -3,6 +3,7 @@
   "name": "KanbanX",
   "description": "Local-first Kanban board in a Chrome side panel. Pure HTML/CSS/JS.",
   "version": "0.1.0",
+  "key": "REPLACE_WITH_PUBLIC_KEY_FROM_CHROME_DASHBOARD",
   "action": {
     "default_title": "Open KanbanX board"
   },

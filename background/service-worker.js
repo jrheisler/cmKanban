@@ -7,6 +7,8 @@ import {
   columnCardCount
 } from '../sidepanel/state.js';
 
+console.log('EXT_ID', chrome.runtime.id);
+
 chrome.runtime.onInstalled.addListener(async () => {
   try {
     await chrome.contextMenus.removeAll();
