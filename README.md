@@ -21,6 +21,9 @@ A local-first Kanban board that lives in Chrome's side panel. Built with pure HT
 ## Data Model
 Stored under `chrome.storage.local` key `kanban.v1`. Default board name is **My Board**. Board naming/multi-board: deferred.
 
+### Attachments
+File attachments are saved in an IndexedDB database named `kanbanx` using the `attachments` object store. Only attachment metadata is kept alongside cards in `chrome.storage.local`; the binary file blobs stay in IndexedDB for efficient retrieval and deletion.
+
 ## Keyboard
 - `/` Focus search (side panel)
 - `?` Reserve for help overlay (announces placeholder message)
