@@ -1,16 +1,20 @@
 <!doctype html>
-<html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>KanbanX Settings</title>
+  </head>
   <body style="font:14px system-ui;padding:1rem;background:#0f1115;color:#e6e6e6">
     <h2 style="margin:.25rem 0 1rem 0">KanbanX Settings</h2>
     <button id="export" style="padding:.5rem .7rem;border-radius:.4rem;border:1px solid #1f2937;background:#111827;color:#e6e6e6;cursor:pointer">Export JSON</button>
     <input type="file" id="import" accept="application/json" style="margin-left:.5rem" />
     <div style="margin-top:1rem">
-      <label>Theme
-        <select id="theme" style="margin-left:.5rem;padding:.3rem .4rem;border-radius:.35rem;background:#0c0e13;border:1px solid #1b1f2a;color:#e6e6e6">
-          <option value="dark">Dark</option>
-          <option value="light">Light</option>
-        </select>
-      </label>
+      <label for="theme">Theme</label>
+      <select id="theme" style="margin-left:.5rem;padding:.3rem .4rem;border-radius:.35rem;background:#0c0e13;border:1px solid #1b1f2a;color:#e6e6e6">
+        <option value="dark">Dark</option>
+        <option value="light">Light</option>
+      </select>
     </div>
     <script type="module" src="options.js"></script>
   </body>

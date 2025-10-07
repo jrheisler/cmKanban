@@ -1,12 +1,27 @@
 <!doctype html>
-<html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>KanbanX Quick Add</title>
+  </head>
   <body style="min-width:280px;font:14px system-ui;padding:.75rem;background:#0f1115;color:#e6e6e6">
     <h3 style="margin:.25rem 0 .75rem 0">Add to KanbanX</h3>
-    <input id="title" placeholder="Title" style="width:100%;padding:.5rem;border-radius:.4rem;border:1px solid #1b1f2a;background:#0c0e13;color:#e6e6e6" />
+    <label style="display:block;margin-bottom:.35rem" for="title">Card title</label>
+    <input
+      id="title"
+      placeholder="Title"
+      style="width:100%;padding:.5rem;border-radius:.4rem;border:1px solid #1b1f2a;background:#0c0e13;color:#e6e6e6"
+    />
     <div style="margin-top:.6rem">
       <label><input type="checkbox" id="attach" checked /> Attach current page</label>
     </div>
-    <button id="save" style="margin-top:.75rem;padding:.5rem .7rem;border-radius:.45rem;border:1px solid #1f2937;background:#111827;color:#e6e6e6;cursor:pointer">Save</button>
+    <button
+      id="save"
+      style="margin-top:.75rem;padding:.5rem .7rem;border-radius:.45rem;border:1px solid #1f2937;background:#111827;color:#e6e6e6;cursor:pointer"
+    >
+      Save
+    </button>
     <script type="module" src="popup.js"></script>
   </body>
 </html>
