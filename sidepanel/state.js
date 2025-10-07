@@ -1,3 +1,5 @@
+import { loadStateFromDrive, saveStateToDrive } from './drive.js';
+
 export const KEY = 'kanban.v1';
 const SETTINGS_KEY = 'kanban.settings.v1';
 
@@ -14,20 +16,34 @@ const clone = (value) => {
 };
 
 export async function loadState() {
-  const [{ [KEY]: data }, settings] = await Promise.all([
-    chrome.storage.local.get(KEY),
-    loadSettings()
-  ]);
-  const state = data ?? null;
+  const localStatePromise = chrome.storage.local.get(KEY);
+  const settingsPromise = loadSettings();
+  const driveState = await loadStateFromDrive();
+
+  const stored = await localStatePromise;
+  const data = stored?.[KEY] ?? null;
+  let state = driveState ?? data ?? null;
+
+  if (driveState) {
+    try {
+      await chrome.storage.local.set({ [KEY]: driveState });
+    } catch (error) {
+      console.warn('KanbanX: unable to persist Drive state locally', error);
+    }
+  }
+
+  const settings = await settingsPromise;
   if (state && settings) {
     state.settings = { ...(state.settings ?? {}), ...settings };
   }
+
   return state;
 }
 
 export async function saveState(state) {
   await chrome.storage.local.set({ [KEY]: state });
   await saveSettings(state.settings ?? {});
+  await saveStateToDrive(state);
 }
 
 export async function initDefault() {
