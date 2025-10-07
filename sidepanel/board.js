@@ -32,40 +32,63 @@ export function renderBoard(state, { onState, onOpenCard, announce }) {
     .map((column, index) => renderColumn(board, column, query, index, sortedColumns.length))
     .join('');
 
+  const handleDrop = async (event) => {
+    event.preventDefault();
+    const target = event.currentTarget;
+    const zone =
+      target instanceof HTMLElement && target.classList.contains('card')
+        ? target.closest('.card-list')
+        : target;
+    if (!(zone instanceof HTMLElement)) return;
+    zone.classList.remove('drag-over');
+
+    const dataTransfer = event.dataTransfer;
+    const cardId = dataTransfer?.getData('text/plain');
+    const columnId = zone.dataset.colId;
+    if (!cardId || !columnId) return;
+
+    const card = board.cards.find((item) => item.id === cardId);
+    const targetColumn = board.columns.find((col) => col.id === columnId);
+    if (!card || !targetColumn) return;
+
+    const sameColumn = card.columnId === columnId;
+    const limit = targetColumn.wip;
+    if (
+      !sameColumn &&
+      typeof limit === 'number' &&
+      limit !== null &&
+      columnCardCount(board, columnId, cardId) + 1 > limit
+    ) {
+      if (typeof announce === 'function') {
+        announce(`Cannot move to ${targetColumn.name}. WIP limit reached.`, 'danger');
+      }
+      return;
+    }
+
+    await onState((current) => moveCard(current, cardId, columnId));
+
+    if (dataTransfer) {
+      dataTransfer.dropEffect = 'move';
+    }
+  };
+
   root.querySelectorAll('.card-list').forEach((zone) => {
     zone.addEventListener('dragover', (event) => {
       event.preventDefault();
       zone.classList.add('drag-over');
-    });
-
-    zone.addEventListener('dragleave', () => {
-      zone.classList.remove('drag-over');
-    });
-
-    zone.addEventListener('drop', async (event) => {
-      event.preventDefault();
-      zone.classList.remove('drag-over');
-      const cardId = event.dataTransfer.getData('text/plain');
-      const columnId = zone.dataset.colId;
-      if (!cardId || !columnId) return;
-      const card = board.cards.find((item) => item.id === cardId);
-      const targetColumn = board.columns.find((col) => col.id === columnId);
-      if (!card || !targetColumn) return;
-      const sameColumn = card.columnId === columnId;
-      const limit = targetColumn.wip;
-      if (
-        !sameColumn &&
-        typeof limit === 'number' &&
-        limit !== null &&
-        columnCardCount(board, columnId, cardId) + 1 > limit
-      ) {
-        if (typeof announce === 'function') {
-          announce(`Cannot move to ${targetColumn.name}. WIP limit reached.`, 'danger');
-        }
-        return;
+      if (event.dataTransfer) {
+        event.dataTransfer.dropEffect = 'move';
       }
-      await onState((current) => moveCard(current, cardId, columnId));
     });
+
+    zone.addEventListener('dragleave', (event) => {
+      const nextTarget = event.relatedTarget;
+      if (!zone.contains(nextTarget)) {
+        zone.classList.remove('drag-over');
+      }
+    });
+
+    zone.addEventListener('drop', handleDrop);
   });
 
   root.querySelectorAll('.card').forEach((cardEl) => {
@@ -73,6 +96,19 @@ export function renderBoard(state, { onState, onOpenCard, announce }) {
       event.dataTransfer.setData('text/plain', cardEl.dataset.id);
       event.dataTransfer.effectAllowed = 'move';
     });
+
+    cardEl.addEventListener('dragover', (event) => {
+      event.preventDefault();
+      const zone = cardEl.closest('.card-list');
+      if (zone) {
+        zone.classList.add('drag-over');
+      }
+      if (event.dataTransfer) {
+        event.dataTransfer.dropEffect = 'move';
+      }
+    });
+
+    cardEl.addEventListener('drop', handleDrop);
 
     cardEl.addEventListener('click', () => {
       if (typeof onOpenCard === 'function') {
