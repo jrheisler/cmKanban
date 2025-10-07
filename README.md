@@ -12,6 +12,7 @@ A local-first Kanban board that lives in Chrome's side panel. Built with pure HT
 - Side panel Kanban board (Backlog/Doing/Done)
 - Drag-and-drop between columns
 - Search (`/` to focus)
+- Keyboard primer placeholder (`?` announces forthcoming help)
 - Quick-add popup (optionally attach current tab URL)
 - Context menu: right-click → **Add to KanbanX**
 - Import/Export JSON (Options page)
@@ -22,11 +23,21 @@ Stored under `chrome.storage.local` key `kanban.v1`. Default board name is **My 
 
 ## Keyboard
 - `/` Focus search (side panel)
+- `?` Reserve for help overlay (announces placeholder message)
 
 ## Permissions Rationale
 - `storage` — Save your boards locally
 - `contextMenus` — Right-click to add card
 - `notifications` — Confirmations after context add
+
+## QA Checklist
+- Install, open side panel
+- Add column/card
+- Drag card across columns
+- Popup quick add
+- Context menu add (with selection)
+- Export/Import round trip
+- Persist across browser restarts
 
 ## Roadmap (deferred)
 - Board renaming & multi-board
