@@ -56,19 +56,24 @@ export function renderBoard(state, { onState, onOpenCard, announce }) {
 
     const sameColumn = card.columnId === columnId;
     const limit = targetColumn.wip;
+    let overLimit = false;
     if (
       !sameColumn &&
       typeof limit === 'number' &&
       limit !== null &&
       columnCardCount(board, columnId, cardId) + 1 > limit
     ) {
-      if (typeof announce === 'function') {
-        announce(`Cannot move to ${targetColumn.name}. WIP limit reached.`, 'danger');
-      }
-      return;
+      overLimit = true;
     }
 
     await onState((current) => moveCard(current, cardId, columnId));
+
+    if (overLimit && typeof announce === 'function') {
+      announce(
+        `Moved to ${targetColumn.name}. WIP limit of ${limit} exceeded.`,
+        'danger'
+      );
+    }
 
     if (dataTransfer) {
       dataTransfer.dropEffect = 'move';
