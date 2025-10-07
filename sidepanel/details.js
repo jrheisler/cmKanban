@@ -127,8 +127,12 @@ function renderDrawer(card, board) {
     </section>
     <section class="drawer-section">
       <h3>Description</h3>
-      <textarea id="descriptionInput" placeholder="Write in Markdown">${escapeHtml(card.description ?? '')}</textarea>
-      <div class="markdown-preview" id="descriptionPreview">${renderMarkdown(card.description ?? '')}</div>
+      <p class="drawer-hint" id="descriptionHelp">Supports Markdown syntax. The live preview updates below.</p>
+      <textarea id="descriptionInput" aria-describedby="descriptionHelp descriptionPreviewLabel" placeholder="Write in Markdown">${escapeHtml(card.description ?? '')}</textarea>
+      <div class="markdown-preview">
+        <div class="markdown-preview__label" id="descriptionPreviewLabel">Markdown preview</div>
+        <div class="markdown-preview__content" id="descriptionPreview" aria-live="polite">${renderMarkdown(card.description ?? '')}</div>
+      </div>
     </section>
     <section class="drawer-section">
       <h3>Labels</h3>

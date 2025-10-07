@@ -327,6 +327,12 @@ header button:hover {
   resize: vertical;
 }
 
+.drawer-hint {
+  margin: 0 0 0.5rem;
+  font-size: 0.85rem;
+  color: #94a3b8;
+}
+
 .drawer textarea:focus,
 .drawer input:focus,
 .drawer select:focus {
@@ -343,6 +349,18 @@ header button:hover {
   font-size: 0.95rem;
   line-height: 1.5;
   margin-top: 0.5rem;
+}
+
+.markdown-preview__label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #94a3b8;
+  margin-bottom: 0.35rem;
+}
+
+.markdown-preview__content {
+  color: inherit;
 }
 
 .markdown-preview h1,
