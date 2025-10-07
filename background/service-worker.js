@@ -80,3 +80,27 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
     console.info('Notification skipped', error);
   }
 });
+
+chrome.action.onClicked.addListener(async (tab) => {
+  let openedSidePanel = false;
+
+  if (tab?.windowId !== undefined && chrome?.sidePanel?.open) {
+    try {
+      await chrome.sidePanel.open({ windowId: tab.windowId });
+      openedSidePanel = true;
+    } catch (error) {
+      console.warn('KanbanX: unable to open side panel from action', error);
+    }
+  } else {
+    console.warn('KanbanX: side panel API unavailable');
+  }
+
+  if (!openedSidePanel) {
+    const boardUrl = chrome.runtime.getURL('sidepanel/index.html');
+    try {
+      await chrome.tabs.create({ url: boardUrl });
+    } catch (error) {
+      console.error('KanbanX: unable to open board fallback tab', error);
+    }
+  }
+});
