@@ -10,7 +10,8 @@
   "permissions": [
     "storage",
     "contextMenus",
-    "notifications"
+    "notifications",
+    "tabs"
   ],
   "side_panel": {
     "default_path": "sidepanel/index.html"
