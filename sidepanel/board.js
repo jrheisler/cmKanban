@@ -216,11 +216,18 @@ function renderColumn(board, column, query, index, totalColumns) {
     .filter((card) => card.columnId === column.id && matchesQuery(card, query))
     .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
 
+  const totalCards = columnCardCount(board, column.id);
+  const visibleCount = visibleCards.length;
+  const filterActive = query.length > 0 && visibleCount !== totalCards;
   const hasLimit = typeof column.wip === 'number' && !Number.isNaN(column.wip);
-  const wipText = hasLimit ? `${visibleCards.length} / ${column.wip}` : `${visibleCards.length}`;
-  const wipAccessible = hasLimit
-    ? `Cards in column: ${visibleCards.length} of ${column.wip}`
-    : `Cards in column: ${visibleCards.length}`;
+  const wipBaseText = hasLimit ? `${totalCards} / ${column.wip}` : `${totalCards}`;
+  const wipText = filterActive ? `${wipBaseText} (${visibleCount} shown)` : wipBaseText;
+  let wipAccessible = hasLimit
+    ? `Cards in column: ${totalCards} of ${column.wip}`
+    : `Cards in column: ${totalCards}`;
+  if (filterActive) {
+    wipAccessible += `. ${visibleCount} shown with current search.`;
+  }
 
   const disableLeft = index === 0 ? 'disabled' : '';
   const disableRight = index === totalColumns - 1 ? 'disabled' : '';

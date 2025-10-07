@@ -139,6 +139,7 @@ export function moveColumn(state, columnId, offset) {
     if (targetIndex < 0 || targetIndex >= board.columns.length) return;
     const [column] = board.columns.splice(currentIndex, 1);
     board.columns.splice(targetIndex, 0, column);
+    column.order = targetIndex;
     normalizeColumnOrder(board);
   });
 }
