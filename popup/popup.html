@@ -16,12 +16,20 @@
     <div style="margin-top:.6rem">
       <label><input type="checkbox" id="attach" checked /> Attach current page</label>
     </div>
-    <button
-      id="save"
-      style="margin-top:.75rem;padding:.5rem .7rem;border-radius:.45rem;border:1px solid #1f2937;background:#111827;color:#e6e6e6;cursor:pointer"
-    >
-      Save
-    </button>
+    <div style="display:flex;flex-direction:column;gap:.5rem;margin-top:.75rem">
+      <button
+        id="save"
+        style="padding:.5rem .7rem;border-radius:.45rem;border:1px solid #1f2937;background:#111827;color:#e6e6e6;cursor:pointer"
+      >
+        Save card
+      </button>
+      <button
+        id="open-board"
+        style="padding:.5rem .7rem;border-radius:.45rem;border:1px solid #1f2937;background:transparent;color:#e6e6e6;cursor:pointer"
+      >
+        Open Kanban board
+      </button>
+    </div>
     <script type="module" src="popup.js"></script>
   </body>
 </html>

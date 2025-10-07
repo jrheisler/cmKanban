@@ -33,3 +33,15 @@ document.getElementById('save').addEventListener('click', async () => {
   await saveState(state);
   window.close();
 });
+
+document.getElementById('open-board').addEventListener('click', async () => {
+  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+  if (tab?.windowId !== undefined) {
+    try {
+      await chrome.sidePanel.open({ windowId: tab.windowId });
+    } catch (error) {
+      console.warn('KanbanX: unable to open side panel', error);
+    }
+  }
+  window.close();
+});
