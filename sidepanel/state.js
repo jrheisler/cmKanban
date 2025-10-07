@@ -90,6 +90,56 @@ export function addColumn(state, column) {
     const board = getActiveBoard(draft);
     if (!board) return;
     board.columns.push({ ...column });
+    normalizeColumnOrder(board);
+  });
+}
+
+export function renameColumn(state, columnId, nextName) {
+  return withState(state, (draft) => {
+    const board = getActiveBoard(draft);
+    if (!board) return;
+    const column = board.columns.find((item) => item.id === columnId);
+    if (!column) return;
+    column.name = nextName;
+  });
+}
+
+export function setColumnLimit(state, columnId, limit) {
+  return withState(state, (draft) => {
+    const board = getActiveBoard(draft);
+    if (!board) return;
+    const column = board.columns.find((item) => item.id === columnId);
+    if (!column) return;
+    column.wip = typeof limit === 'number' ? limit : null;
+  });
+}
+
+export function removeColumn(state, columnId) {
+  return withState(state, (draft) => {
+    const board = getActiveBoard(draft);
+    if (!board) return;
+    if (!Array.isArray(board.columns) || board.columns.length <= 1) return;
+    board.columns = board.columns.filter((column) => column.id !== columnId);
+    if (Array.isArray(board.cards)) {
+      board.cards = board.cards.filter((card) => card.columnId !== columnId);
+    }
+    normalizeColumnOrder(board);
+  });
+}
+
+export function moveColumn(state, columnId, offset) {
+  return withState(state, (draft) => {
+    const board = getActiveBoard(draft);
+    if (!board) return;
+    if (!Array.isArray(board.columns) || board.columns.length <= 1) return;
+    normalizeColumnOrder(board);
+    const currentIndex = board.columns.findIndex((column) => column.id === columnId);
+    if (currentIndex === -1) return;
+    const targetIndex = currentIndex + offset;
+    if (targetIndex < 0 || targetIndex >= board.columns.length) return;
+    const [column] = board.columns.splice(currentIndex, 1);
+    board.columns.splice(targetIndex, 0, column);
+    normalizeColumnOrder(board);
   });
 }
 
@@ -177,6 +227,14 @@ function applyCardDefaults(card) {
     attachments: [],
     ...card
   };
+}
+
+function normalizeColumnOrder(board) {
+  if (!board || !Array.isArray(board.columns)) return;
+  board.columns.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+  board.columns.forEach((column, index) => {
+    column.order = index;
+  });
 }
 
 async function loadSettings() {
