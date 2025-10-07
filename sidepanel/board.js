@@ -1,7 +1,12 @@
 import { html, cardView } from './templates.js';
-import { getActiveBoard, addCard, moveCard } from './state.js';
+import { getActiveBoard, addCard, moveCard, columnCardCount } from './state.js';
 
-export function renderBoard(state, { onState }) {
+const createId = () =>
+  typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
+    ? crypto.randomUUID()
+    : `${Date.now().toString(16)}-${Math.random().toString(16).slice(2, 10)}`;
+
+export function renderBoard(state, { onState, onOpenCard, announce }) {
   const root = document.getElementById('board');
   const board = getActiveBoard(state);
   if (!board) {
@@ -30,6 +35,22 @@ export function renderBoard(state, { onState }) {
       const cardId = event.dataTransfer.getData('text/plain');
       const columnId = zone.dataset.colId;
       if (!cardId || !columnId) return;
+      const card = board.cards.find((item) => item.id === cardId);
+      const targetColumn = board.columns.find((col) => col.id === columnId);
+      if (!card || !targetColumn) return;
+      const sameColumn = card.columnId === columnId;
+      const limit = targetColumn.wip;
+      if (
+        !sameColumn &&
+        typeof limit === 'number' &&
+        limit !== null &&
+        columnCardCount(board, columnId, cardId) + 1 > limit
+      ) {
+        if (typeof announce === 'function') {
+          announce(`Cannot move to ${targetColumn.name}. WIP limit reached.`, 'danger');
+        }
+        return;
+      }
       await onState((current) => moveCard(current, cardId, columnId));
     });
   });
@@ -39,14 +60,40 @@ export function renderBoard(state, { onState }) {
       event.dataTransfer.setData('text/plain', cardEl.dataset.id);
       event.dataTransfer.effectAllowed = 'move';
     });
+
+    cardEl.addEventListener('click', () => {
+      if (typeof onOpenCard === 'function') {
+        onOpenCard(cardEl.dataset.id);
+      }
+    });
+
+    cardEl.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        if (typeof onOpenCard === 'function') {
+          onOpenCard(cardEl.dataset.id);
+        }
+      }
+    });
   });
 
   root.querySelectorAll('.add-card').forEach((button) => {
     button.addEventListener('click', async () => {
       const columnId = button.dataset.colId;
       if (!columnId) return;
+      const column = board.columns.find((col) => col.id === columnId);
+      const limit = column?.wip;
+      if (typeof limit === 'number' && limit !== null) {
+        const count = columnCardCount(board, columnId);
+        if (count + 1 > limit) {
+          if (typeof announce === 'function') {
+            announce(`Cannot add card. ${column?.name ?? 'Column'} is at WIP limit.`, 'danger');
+          }
+          return;
+        }
+      }
       const nextCard = {
-        id: crypto.randomUUID(),
+        id: createId(),
         columnId,
         title: 'New task',
         labels: [],
@@ -54,12 +101,16 @@ export function renderBoard(state, { onState }) {
         updatedAt: Date.now()
       };
       await onState((current) => addCard(current, nextCard));
+      if (typeof announce === 'function') {
+        announce(`Card added to ${column?.name ?? 'column'}.`, 'success');
+      }
     });
   });
 }
 
 function renderColumn(board, column, query) {
-  const visibleCards = board.cards
+  const cards = Array.isArray(board.cards) ? board.cards : [];
+  const visibleCards = cards
     .filter((card) => card.columnId === column.id && matchesQuery(card, query))
     .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
 

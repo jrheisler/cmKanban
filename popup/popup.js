@@ -1,4 +1,11 @@
-import { loadState, initDefault, saveState, addCard, getActiveBoard } from '../sidepanel/state.js';
+import {
+  loadState,
+  initDefault,
+  saveState,
+  addCard,
+  getActiveBoard,
+  columnCardCount
+} from '../sidepanel/state.js';
 
 document.getElementById('save').addEventListener('click', async () => {
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
@@ -12,6 +19,17 @@ document.getElementById('save').addEventListener('click', async () => {
   if (!board || !firstColumnId) {
     window.close();
     return;
+  }
+
+  const firstColumn = board.columns.find((column) => column.id === firstColumnId);
+  const limit = firstColumn?.wip;
+  if (typeof limit === 'number' && limit !== null) {
+    const count = columnCardCount(board, firstColumnId);
+    if (count + 1 > limit) {
+      alert(`Cannot add card. "${firstColumn?.name ?? 'Column'}" is at its WIP limit.`);
+      window.close();
+      return;
+    }
   }
 
   const titleField = document.getElementById('title');

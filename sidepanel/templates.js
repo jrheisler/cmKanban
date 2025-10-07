@@ -13,9 +13,21 @@ export function cardView(card) {
   const labelText = labels.length
     ? `🏷️ ${labels.map((label) => escapeHtml(label)).join(', ')}`
     : '';
+  const dueDisplay = formatDate(card.dueDate);
+  const dueText = dueDisplay ? `📅 ${escapeHtml(dueDisplay)}` : '';
+  const checklist = Array.isArray(card.checklist) ? card.checklist : [];
+  const completed = checklist.filter((item) => item?.done).length;
+  const checklistText = checklist.length ? `☑️ ${completed}/${checklist.length}` : '';
+  const metaParts = [labelText, dueText, checklistText].filter(Boolean);
   const ariaLabelParts = [card.title ?? 'Untitled'];
-  if (labelText) {
+  if (labels.length) {
     ariaLabelParts.push(`Labels ${labels.join(', ')}`);
+  }
+  if (dueDisplay) {
+    ariaLabelParts.push(`Due ${dueDisplay}`);
+  }
+  if (checklist.length) {
+    ariaLabelParts.push(`Checklist ${completed} of ${checklist.length} complete`);
   }
 
   return html`<article
@@ -27,6 +39,17 @@ export function cardView(card) {
     aria-label="${escapeHtml(ariaLabelParts.join('. '))}"
   >
     <div class="title">${title}</div>
-    <div class="meta">${labelText}</div>
+    <div class="meta">${metaParts.map((item) => `<span>${item}</span>`).join('')}</div>
   </article>`;
+}
+
+function formatDate(input) {
+  if (!input) return '';
+  const date = new Date(input);
+  if (Number.isNaN(date.getTime())) return '';
+  return date.toLocaleDateString(undefined, {
+    month: 'short',
+    day: 'numeric',
+    year: date.getFullYear() !== new Date().getFullYear() ? 'numeric' : undefined
+  });
 }
