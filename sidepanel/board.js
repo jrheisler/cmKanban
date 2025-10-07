@@ -1,5 +1,14 @@
 import { html, cardView } from './templates.js';
-import { getActiveBoard, addCard, moveCard, columnCardCount } from './state.js';
+import {
+  getActiveBoard,
+  addCard,
+  moveCard,
+  columnCardCount,
+  renameColumn,
+  removeColumn,
+  setColumnLimit,
+  moveColumn as shiftColumn
+} from './state.js';
 
 const createId = () =>
   typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
@@ -15,9 +24,13 @@ export function renderBoard(state, { onState, onOpenCard, announce }) {
   }
 
   const query = (state.ui?.query ?? '').toLowerCase();
-  const sortedColumns = [...board.columns].sort((a, b) => a.order - b.order);
+  const sortedColumns = [...board.columns].sort(
+    (a, b) => (a.order ?? 0) - (b.order ?? 0)
+  );
 
-  root.innerHTML = sortedColumns.map((column) => renderColumn(board, column, query)).join('');
+  root.innerHTML = sortedColumns
+    .map((column, index) => renderColumn(board, column, query, index, sortedColumns.length))
+    .join('');
 
   root.querySelectorAll('.card-list').forEach((zone) => {
     zone.addEventListener('dragover', (event) => {
@@ -106,18 +119,111 @@ export function renderBoard(state, { onState, onOpenCard, announce }) {
       }
     });
   });
+
+  root.querySelectorAll('.col-rename').forEach((button) => {
+    button.addEventListener('click', async () => {
+      const columnId = button.dataset.colId;
+      if (!columnId) return;
+      const column = board.columns.find((col) => col.id === columnId);
+      const name = prompt('Rename column', column?.name ?? 'Column');
+      if (name === null) return;
+      const trimmed = name.trim();
+      if (!trimmed) {
+        if (typeof announce === 'function') {
+          announce('Column name cannot be empty.', 'danger');
+        }
+        return;
+      }
+      await onState((current) => renameColumn(current, columnId, trimmed));
+      if (typeof announce === 'function') {
+        announce('Column renamed.', 'success');
+      }
+    });
+  });
+
+  root.querySelectorAll('.col-limit').forEach((button) => {
+    button.addEventListener('click', async () => {
+      const columnId = button.dataset.colId;
+      if (!columnId) return;
+      const column = board.columns.find((col) => col.id === columnId);
+      const currentLimit =
+        typeof column?.wip === 'number' && !Number.isNaN(column.wip) ? column.wip : '';
+      const input = prompt('Set max cards (leave blank for no limit)', `${currentLimit}`);
+      if (input === null) return;
+      const trimmed = input.trim();
+      let limit = null;
+      if (trimmed !== '') {
+        const parsed = Number.parseInt(trimmed, 10);
+        if (Number.isNaN(parsed) || parsed < 0) {
+          if (typeof announce === 'function') {
+            announce('Enter a whole number that is zero or greater.', 'danger');
+          }
+          return;
+        }
+        limit = parsed;
+      }
+      await onState((current) => setColumnLimit(current, columnId, limit));
+      if (typeof announce === 'function') {
+        if (limit === null) {
+          announce('Column limit cleared.', 'success');
+        } else {
+          announce(`Column limit set to ${limit}.`, 'success');
+        }
+      }
+    });
+  });
+
+  root.querySelectorAll('.col-delete').forEach((button) => {
+    button.addEventListener('click', async () => {
+      const columnId = button.dataset.colId;
+      if (!columnId) return;
+      if (!Array.isArray(board.columns) || board.columns.length <= 1) {
+        if (typeof announce === 'function') {
+          announce('Keep at least one column.', 'danger');
+        }
+        return;
+      }
+      const column = board.columns.find((col) => col.id === columnId);
+      const name = column?.name ?? 'column';
+      if (!confirm(`Delete "${name}"? Cards in this column will be removed.`)) return;
+      await onState((current) => removeColumn(current, columnId));
+      if (typeof announce === 'function') {
+        announce('Column deleted.', 'danger');
+      }
+    });
+  });
+
+  root.querySelectorAll('.col-move-left').forEach((button) => {
+    button.addEventListener('click', async () => {
+      const columnId = button.dataset.colId;
+      if (!columnId || button.disabled) return;
+      await onState((current) => shiftColumn(current, columnId, -1));
+    });
+  });
+
+  root.querySelectorAll('.col-move-right').forEach((button) => {
+    button.addEventListener('click', async () => {
+      const columnId = button.dataset.colId;
+      if (!columnId || button.disabled) return;
+      await onState((current) => shiftColumn(current, columnId, 1));
+    });
+  });
 }
 
-function renderColumn(board, column, query) {
+function renderColumn(board, column, query, index, totalColumns) {
   const cards = Array.isArray(board.cards) ? board.cards : [];
   const visibleCards = cards
     .filter((card) => card.columnId === column.id && matchesQuery(card, query))
     .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
 
-  const wipText = column.wip ? `${visibleCards.length} / ${column.wip}` : `${visibleCards.length}`;
-  const wipAccessible = column.wip
+  const hasLimit = typeof column.wip === 'number' && !Number.isNaN(column.wip);
+  const wipText = hasLimit ? `${visibleCards.length} / ${column.wip}` : `${visibleCards.length}`;
+  const wipAccessible = hasLimit
     ? `Cards in column: ${visibleCards.length} of ${column.wip}`
     : `Cards in column: ${visibleCards.length}`;
+
+  const disableLeft = index === 0 ? 'disabled' : '';
+  const disableRight = index === totalColumns - 1 ? 'disabled' : '';
 
   return html`<section
       class="column"
@@ -128,6 +234,50 @@ function renderColumn(board, column, query) {
       <div class="col-head">
         <div class="col-title" id="col-${column.id}">${column.name}</div>
         <div class="wip" aria-hidden="true">${wipText}</div>
+        <div class="col-actions" role="group" aria-label="Column actions">
+          <button
+            class="icon-button col-move-left"
+            data-col-id="${column.id}"
+            ${disableLeft}
+            title="Move column left"
+            aria-label="Move column left"
+          >
+            <span aria-hidden="true">◀</span>
+          </button>
+          <button
+            class="icon-button col-move-right"
+            data-col-id="${column.id}"
+            ${disableRight}
+            title="Move column right"
+            aria-label="Move column right"
+          >
+            <span aria-hidden="true">▶</span>
+          </button>
+          <button
+            class="icon-button col-rename"
+            data-col-id="${column.id}"
+            title="Rename column"
+            aria-label="Rename column"
+          >
+            <span aria-hidden="true">✏️</span>
+          </button>
+          <button
+            class="icon-button col-limit"
+            data-col-id="${column.id}"
+            title="Set max cards"
+            aria-label="Set max cards"
+          >
+            <span aria-hidden="true">#</span>
+          </button>
+          <button
+            class="icon-button col-delete"
+            data-col-id="${column.id}"
+            title="Delete column"
+            aria-label="Delete column"
+          >
+            <span aria-hidden="true">🗑️</span>
+          </button>
+        </div>
         <span class="sr-only">${wipAccessible}</span>
       </div>
       <div class="card-list" data-col-id="${column.id}" role="list">

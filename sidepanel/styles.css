@@ -148,6 +148,36 @@ header button:hover {
 .wip {
   opacity: 0.6;
   font-size: 0.82em;
+  flex-shrink: 0;
+}
+
+.col-actions {
+  display: flex;
+  gap: 0.25rem;
+  flex-shrink: 0;
+}
+
+.icon-button {
+  padding: 0.3rem;
+  border: 1px solid #1f2937;
+  background: #111827;
+  color: inherit;
+  border-radius: 0.4rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.9rem;
+  min-height: 1.9rem;
+}
+
+.icon-button:hover {
+  background: #0f172a;
+}
+
+.icon-button:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
 }
 
 .card-list {
