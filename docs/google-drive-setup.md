@@ -49,6 +49,11 @@ Use one of the organisation's shared "Standard Google Users" so the client ID is
 3. Confirm that the `oauth2.scopes` array contains `https://www.googleapis.com/auth/drive.appdata`.
 4. Save the file and reload the extension from `chrome://extensions`.
 
+> **FAQ: Does this stop other users from signing in with their own Google Drive?** No. The OAuth client ID uniquely identifies the
+> extension as an application, not an end user. Any teammate you add to the consent screen's **Test users** list can authorise
+> the extension with their personal Google Drive account. If somebody outside that list needs access, just add them (or publish
+> the consent screen) and they will see the standard Google sign-in flow while the extension continues to use the same client ID.
+
 If you're preparing a build for distribution, double-check that the committed manifest contains the correct client ID. Never commit secrets such as client secrets—only the public client ID belongs in source control.
 
 ## 8. Verify the integration
