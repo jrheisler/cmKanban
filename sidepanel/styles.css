@@ -93,6 +93,11 @@ header button:hover {
   background: #0f172a;
 }
 
+header button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
 #notice {
   min-height: 1.5rem;
   padding: 0.25rem 0.75rem;
