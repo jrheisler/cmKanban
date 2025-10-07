@@ -1,6 +1,8 @@
 const DRIVE_SETTINGS_KEY = 'kanban.drive.settings.v1';
 const DRIVE_FILE_NAME = 'kanbanx-boards.json';
 
+const PLACEHOLDER_CLIENT_ID = 'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com';
+
 async function getStoredSettings() {
   try {
     const { [DRIVE_SETTINGS_KEY]: settings } = await chrome.storage.local.get(
@@ -37,6 +39,15 @@ function buildMultipartBody(metadata, json) {
 function ensureIdentityAvailable() {
   if (!chrome?.identity?.getAuthToken) {
     throw new Error('Google identity API unavailable. Add "identity" permission and OAuth2 details to manifest.');
+  }
+
+  const manifest = chrome?.runtime?.getManifest?.();
+  const clientId = manifest?.oauth2?.client_id?.trim();
+
+  if (!clientId || clientId === PLACEHOLDER_CLIENT_ID) {
+    throw new Error(
+      'Google OAuth client ID missing. Replace the placeholder in manifest.json (see docs/google-drive-setup.md).'
+    );
   }
 }
 
