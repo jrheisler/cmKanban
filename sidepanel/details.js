@@ -86,6 +86,28 @@ function renderDrawer(card, board) {
   if (!drawerBackdrop) return;
   const drawer = drawerBackdrop.querySelector('.drawer');
   if (!drawer) return;
+  const activeElement = drawer.contains(document.activeElement)
+    ? document.activeElement
+    : null;
+  let focusState = null;
+  if (activeElement instanceof HTMLElement) {
+    const selection =
+      'selectionStart' in activeElement && 'selectionEnd' in activeElement
+        ? {
+            start: activeElement.selectionStart,
+            end: activeElement.selectionEnd
+          }
+        : null;
+    if (activeElement.id) {
+      focusState = { type: 'id', value: activeElement.id, selection };
+    } else {
+      const checklistItem = activeElement.closest('.checklist-item');
+      const checklistId = checklistItem?.dataset.id;
+      if (checklistId) {
+        focusState = { type: 'checklist', value: checklistId, selection };
+      }
+    }
+  }
   const column = board?.columns.find((col) => col.id === card.columnId);
   const labels = Array.isArray(card.labels) ? card.labels : [];
   const checklist = Array.isArray(card.checklist) ? card.checklist : [];
@@ -166,8 +188,47 @@ function renderDrawer(card, board) {
   `;
 
   bindDrawerEvents(drawer, { checklist, attachments });
+  if (focusState) {
+    let nextFocus = null;
+    if (focusState.type === 'id') {
+      nextFocus = drawer.querySelector(`#${escapeSelector(focusState.value)}`);
+      if (!nextFocus && focusState.value) {
+        nextFocus = document.getElementById(focusState.value);
+      }
+    } else if (focusState.type === 'checklist') {
+      nextFocus = drawer.querySelector(
+        `.checklist-item[data-id="${escapeSelector(focusState.value)}"] input[type='text']`
+      );
+    }
+    if (nextFocus instanceof HTMLElement) {
+      nextFocus.focus();
+      if (
+        focusState.selection &&
+        'setSelectionRange' in nextFocus &&
+        typeof nextFocus.setSelectionRange === 'function'
+      ) {
+        try {
+          nextFocus.setSelectionRange(
+            focusState.selection.start,
+            focusState.selection.end
+          );
+        } catch (error) {
+          // Ignore if the element does not support selection ranges
+        }
+      }
+      return;
+    }
+  }
   const titleInput = drawer.querySelector('#cardTitleInput');
   titleInput?.focus();
+}
+
+function escapeSelector(value) {
+  if (typeof value !== 'string') return value;
+  if (typeof CSS !== 'undefined' && typeof CSS.escape === 'function') {
+    return CSS.escape(value);
+  }
+  return value.replace(/([\0-\x1f\x7f-\x9f!"#$%&'()*+,./:;<=>?@\[\]^`{|}~])/g, '\\$1');
 }
 
 function bindDrawerEvents(drawer, { checklist, attachments }) {
