@@ -36,12 +36,14 @@ document.getElementById('save').addEventListener('click', async () => {
 
 document.getElementById('open-board').addEventListener('click', async () => {
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-  if (tab?.windowId !== undefined) {
+  if (tab?.windowId !== undefined && chrome?.sidePanel?.open) {
     try {
       await chrome.sidePanel.open({ windowId: tab.windowId });
     } catch (error) {
       console.warn('KanbanX: unable to open side panel', error);
     }
+  } else {
+    console.warn('KanbanX: side panel API unavailable');
   }
   window.close();
 });
