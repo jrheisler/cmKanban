@@ -72,13 +72,23 @@ export function renderBoard(state, { onState, onOpenCard, announce }) {
     }
   };
 
-  root.querySelectorAll('.card-list').forEach((zone) => {
-    zone.addEventListener('dragover', (event) => {
-      event.preventDefault();
+  const allowDrop = (event, zone) => {
+    event.preventDefault();
+    if (zone instanceof HTMLElement) {
       zone.classList.add('drag-over');
-      if (event.dataTransfer) {
-        event.dataTransfer.dropEffect = 'move';
-      }
+    }
+    if (event.dataTransfer) {
+      event.dataTransfer.dropEffect = 'move';
+    }
+  };
+
+  root.querySelectorAll('.card-list').forEach((zone) => {
+    zone.addEventListener('dragenter', (event) => {
+      allowDrop(event, zone);
+    });
+
+    zone.addEventListener('dragover', (event) => {
+      allowDrop(event, zone);
     });
 
     zone.addEventListener('dragleave', (event) => {
@@ -97,15 +107,14 @@ export function renderBoard(state, { onState, onOpenCard, announce }) {
       event.dataTransfer.effectAllowed = 'move';
     });
 
+    const listZone = cardEl.closest('.card-list');
+
+    cardEl.addEventListener('dragenter', (event) => {
+      allowDrop(event, listZone);
+    });
+
     cardEl.addEventListener('dragover', (event) => {
-      event.preventDefault();
-      const zone = cardEl.closest('.card-list');
-      if (zone) {
-        zone.classList.add('drag-over');
-      }
-      if (event.dataTransfer) {
-        event.dataTransfer.dropEffect = 'move';
-      }
+      allowDrop(event, listZone);
     });
 
     cardEl.addEventListener('drop', handleDrop);
