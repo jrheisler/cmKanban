@@ -29,7 +29,9 @@ export function renderBoard(state, { onState, onOpenCard, announce }) {
   );
 
   root.innerHTML = sortedColumns
-    .map((column, index) => renderColumn(board, column, query, index, sortedColumns.length))
+    .map((column, index) =>
+      renderColumn(board, column, query, index, sortedColumns.length, index === 0)
+    )
     .join('');
 
   const getDropZone = (element) => {
@@ -270,7 +272,7 @@ export function renderBoard(state, { onState, onOpenCard, announce }) {
   });
 }
 
-function renderColumn(board, column, query, index, totalColumns) {
+function renderColumn(board, column, query, index, totalColumns, showAddButton) {
   const cards = Array.isArray(board.cards) ? board.cards : [];
   const visibleCards = cards
     .filter((card) => card.columnId === column.id && matchesQuery(card, query))
@@ -350,7 +352,9 @@ function renderColumn(board, column, query, index, totalColumns) {
       <div class="card-list" data-col-id="${column.id}" role="list">
         ${visibleCards.map((card) => cardView(card)).join('')}
       </div>
-      <button class="add-card" data-col-id="${column.id}">+ Add card</button>
+      ${showAddButton
+        ? html`<button class="add-card" data-col-id="${column.id}">+ Add card</button>`
+        : ''}
     </section>`;
 }
 
