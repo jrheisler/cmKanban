@@ -66,12 +66,11 @@ elSearch.addEventListener('input', (event) => {
 });
 
 elAddColumn.addEventListener('click', () => {
-  const board = getActiveBoard(state);
   const nextColumn = {
     id: createId(),
     name: 'New',
     wip: null,
-    order: board ? board.columns.length : 0
+    order: -1
   };
   onState((current) => addColumn(current, nextColumn));
 });
