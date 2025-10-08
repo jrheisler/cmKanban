@@ -41,7 +41,7 @@ File attachments are saved in an IndexedDB database named `kanbanx` using the `a
 
 Click **Connect to G-Drive** in the side panel header to authorise access to your Drive `appDataFolder`. After a successful setup the extension uploads the current board state to `kanbanx-boards.json` and subsequently reads/writes from that file when loading or mutating the board.
 
-Refer to [docs/google-drive-setup.md](docs/google-drive-setup.md) for the full OAuth configuration checklist, including which [Standard Google Users](docs/standard-google-users.md) account to use and how to replace the placeholder client ID in `manifest.json`.
+Refer to [docs/google-drive-setup.md](docs/google-drive-setup.md) for the full OAuth configuration checklist, including which [Standard Google Users](docs/standard-google-users.md) account to use and how to replace the placeholder client IDs in `manifest.dev.json` / `manifest.prod.json` before selecting the active manifest.
 
 ## QA Checklist
 - Install, open side panel

@@ -31,30 +31,41 @@ Use one of the organisation's shared "Standard Google Users" so the client ID is
 1. Load the unpacked extension and open the background service worker console. It now prints `EXT_ID <value>` on startup.
 2. Copy the ID shown there (or from `chrome://extensions`).
 3. In the Chrome Web Store Developer Dashboard, open **Package → View public key** and copy the public key.
-4. Paste the key into [`manifest.json`](../manifest.json) under the top-level `"key"` field so the unpacked and packaged IDs stay in sync.
+4. Paste the key into [`manifest.dev.json`](../manifest.dev.json) (and therefore [`manifest.json`](../manifest.json) during development) under the top-level `"key"` field so the unpacked and packaged IDs stay in sync.
 
 > **Why this matters:** Google OAuth for Chrome extensions requires that the OAuth client **Item ID** matches the extension ID exactly. Setting the manifest `key` locks the ID across rebuilds.
 
-## 6. Create the Chrome extension OAuth client
+## 6. Create the Chrome extension OAuth clients
+
+Create **two** OAuth clients so development and production builds keep their extension IDs in sync with Google:
 
 1. Open **APIs & Services → Credentials** and click **Create credentials → OAuth client ID**.
 2. Choose **Chrome App** as the application type.
-3. When prompted for the application ID, supply the extension ID shown in `chrome://extensions` after loading KanbanX in developer mode.
-4. Click **Create** to generate the client. Copy the **Client ID** that is displayed.
+3. For the dev client, supply the unpacked extension ID printed by the background service worker (`console.log('EXT_ID', chrome.runtime.id);`).
+4. For the production client, use the Chrome Web Store item ID assigned to the published extension.
+5. Copy both **Client ID** values—you will paste them into their corresponding manifests next.
 
-## 7. Update `manifest.json`
+## 7. Update the manifests
 
-1. Open the project locally and edit [`manifest.json`](../manifest.json).
-2. Replace `YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com` with the client ID you just copied.
-3. Confirm that the `oauth2.scopes` array contains `https://www.googleapis.com/auth/drive.appdata`.
-4. Save the file and reload the extension from `chrome://extensions`.
+1. Open [`manifest.dev.json`](../manifest.dev.json) and replace `DEV_GOOGLE_CLIENT_ID.apps.googleusercontent.com` with the dev OAuth client ID.
+2. Open [`manifest.prod.json`](../manifest.prod.json) and replace `PROD_GOOGLE_CLIENT_ID.apps.googleusercontent.com` with the production OAuth client ID. Do **not** add a key to this file—the Web Store injects the published key automatically.
+3. Confirm that both manifests include the `identity`, `identity.email`, `storage`, `contextMenus`, `notifications`, and `tabs` permissions along with the `https://www.googleapis.com/auth/drive.appdata` OAuth scope.
+4. Use [`scripts/use-manifest.sh`](../scripts/use-manifest.sh) to copy the appropriate manifest into [`manifest.json`](../manifest.json) before zipping or loading the build:
+
+   ```bash
+   # Use the dev manifest locally
+   ./scripts/use-manifest.sh dev
+
+   # Use the production manifest when preparing a Web Store upload
+   ./scripts/use-manifest.sh prod
+   ```
 
 > **FAQ: Does this stop other users from signing in with their own Google Drive?** No. The OAuth client ID uniquely identifies the
 > extension as an application, not an end user. Any teammate you add to the consent screen's **Test users** list can authorise
 > the extension with their personal Google Drive account. If somebody outside that list needs access, just add them (or publish
 > the consent screen) and they will see the standard Google sign-in flow while the extension continues to use the same client ID.
 
-If you're preparing a build for distribution, double-check that the committed manifest contains the correct client ID. Never commit secrets such as client secrets—only the public client ID belongs in source control.
+If you're preparing a build for distribution, double-check that the committed manifest contains the correct client ID placeholders (dev or prod) before shipping. Never commit secrets such as client secrets—only the public client IDs belong in source control.
 
 ## 8. Verify the integration
 
@@ -62,6 +73,8 @@ If you're preparing a build for distribution, double-check that the committed ma
 2. Chrome should open an OAuth prompt for the selected standard Google user.
 3. The console logs a non-empty auth token (`KanbanX: Drive token acquired ...`) followed by the result of listing the AppData files (`KanbanX: AppData files ...`).
 4. After authorising, the button should show **G-Drive Connected** and the notice should confirm the connection.
+
+If a tester needs to switch accounts, wire the UI to call `switchAccount()` from [`auth/driveAuth.js`](../auth/driveAuth.js). This clears cached tokens and re-opens the Google account chooser on the next interactive request.
 
 ## 9. Rotating or replacing credentials
 

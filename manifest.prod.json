@@ -3,7 +3,6 @@
   "name": "KanbanX",
   "description": "Local-first Kanban board in a Chrome side panel. Pure HTML/CSS/JS.",
   "version": "0.1.0",
-  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAo7ghoS/75tEcWH1Ml0FbhpyubLB5RCBhBhx6C35qKUJ2uOOhnJwtFW9AINFM6yPuHJo7Y7RIMQPVgrKaaQvNxPPCM031F+MGqwaHGvpT8ZHm17Ko9bWZ1iWa0GCbxvNsttRA51G9zGcbKx9logZiroWoAQrTloSPhOyKZbTDQ7uzr5EEokuN7DT3KBZyC6Oc7KsZTMV6HzKVPZK03zq9FokIiLuCNCDsQSqLJ7CNQ6cAvvTbpioAO+HTDGtGIgKZt3XuNE4WvQ3CyFbI/wy46iJoLxgtzLo4AoUKdjHtrT9wzV17DDEg8hATaO2/781cI0ql33iVzciRH8gbPxr1qwIDAQAB",
   "action": {
     "default_title": "Open KanbanX board"
   },
@@ -19,7 +18,7 @@
     "https://www.googleapis.com/*"
   ],
   "oauth2": {
-    "client_id": "DEV_GOOGLE_CLIENT_ID.apps.googleusercontent.com",
+    "client_id": "PROD_GOOGLE_CLIENT_ID.apps.googleusercontent.com",
     "scopes": ["https://www.googleapis.com/auth/drive.appdata"]
   },
   "side_panel": {

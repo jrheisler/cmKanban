@@ -1,4 +1,8 @@
-const PLACEHOLDER_CLIENT_ID = 'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com';
+const PLACEHOLDER_CLIENT_IDS = new Set([
+  'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com',
+  'DEV_GOOGLE_CLIENT_ID.apps.googleusercontent.com',
+  'PROD_GOOGLE_CLIENT_ID.apps.googleusercontent.com'
+]);
 
 function getManifestClientId() {
   const manifest = chrome?.runtime?.getManifest?.();
@@ -13,14 +17,14 @@ export function ensureDriveOAuthConfigured() {
   }
 
   const clientId = getManifestClientId();
-  if (!clientId || clientId === PLACEHOLDER_CLIENT_ID) {
+  if (!clientId || PLACEHOLDER_CLIENT_IDS.has(clientId)) {
     throw new Error(
-      'Google OAuth client ID missing. Replace the placeholder in manifest.json (see docs/google-drive-setup.md for why this ID is shared across users).'
+      'Google OAuth client ID missing. Replace the placeholder in the active manifest (see docs/google-drive-setup.md for why this ID is shared across users).'
     );
   }
 }
 
-export async function getDriveToken(interactive = true) {
+export async function getDriveToken({ interactive = true } = {}) {
   ensureDriveOAuthConfigured();
 
   return new Promise((resolve, reject) => {
@@ -46,6 +50,15 @@ export async function getDriveToken(interactive = true) {
       reject(error);
     }
   });
+}
+
+export async function switchAccount() {
+  const token = await getDriveToken({ interactive: false }).catch(() => null);
+  if (token) {
+    await clearCachedDriveToken(token);
+  }
+  await clearAllDriveTokens();
+  return getDriveToken({ interactive: true });
 }
 
 export async function clearCachedDriveToken(token) {
@@ -78,4 +91,3 @@ export async function clearAllDriveTokens() {
   }
 }
 
-export { PLACEHOLDER_CLIENT_ID };
