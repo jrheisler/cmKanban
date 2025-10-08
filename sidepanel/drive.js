@@ -48,7 +48,7 @@ async function driveFetch(path, { method = 'GET', headers = {}, body } = {}, opt
   let token;
   try {
     ensureDriveOAuthConfigured();
-    token = await getDriveToken(interactive);
+    token = await getDriveToken({ interactive });
   } catch (error) {
     if (retryOnAuthError) {
       await clearAllDriveTokens();
