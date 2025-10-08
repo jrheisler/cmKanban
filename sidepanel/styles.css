@@ -1,5 +1,7 @@
 :root {
   color-scheme: dark;
+  --app-header-offset: 72px;
+  --board-vertical-padding: 1.5rem;
 }
 
 * {
@@ -130,7 +132,7 @@ header button:disabled {
   display: flex;
   flex-direction: column;
   min-height: 420px;
-  max-height: calc(100vh - 72px);
+  max-height: calc(100vh - var(--app-header-offset) - var(--board-vertical-padding));
 }
 
 .col-head {
@@ -140,7 +142,7 @@ header button:disabled {
   gap: 0.5rem;
   border-bottom: 1px solid #1b1f2a;
   position: sticky;
-  top: 56px;
+  top: var(--app-header-offset);
   background: #0c0e13;
   z-index: 5;
 }

@@ -24,6 +24,17 @@ const elRenameBoard = document.getElementById('renameBoard');
 const elDeleteBoard = document.getElementById('deleteBoard');
 const elNotice = document.getElementById('notice');
 const elConnectDrive = document.getElementById('connectDrive');
+const elHeader = document.querySelector('header');
+
+const rootStyle = document.documentElement?.style ?? null;
+
+const updateLayoutMetrics = () => {
+  if (!rootStyle) return;
+  const headerHeight = elHeader?.offsetHeight ?? 0;
+  const noticeHeight = elNotice?.offsetHeight ?? 0;
+  const offset = headerHeight + noticeHeight;
+  rootStyle.setProperty('--app-header-offset', `${offset}px`);
+};
 
 const createId = () =>
   typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
@@ -35,8 +46,16 @@ if (!state) {
   state = await initDefault();
 }
 
+const resizeObserver = typeof ResizeObserver === 'function' ? new ResizeObserver(updateLayoutMetrics) : null;
+if (resizeObserver) {
+  if (elHeader) resizeObserver.observe(elHeader);
+  if (elNotice) resizeObserver.observe(elNotice);
+}
+window.addEventListener('resize', updateLayoutMetrics, { passive: true });
+
 render();
 updateDriveButton();
+updateLayoutMetrics();
 
 elSearch.addEventListener('input', (event) => {
   state = withState(state, (draft) => {
@@ -127,6 +146,7 @@ function render() {
   });
   renderBoardControls();
   syncCardDetails(state, { onState, notify: showNotice });
+  updateLayoutMetrics();
 }
 
 async function onState(updater) {
@@ -174,6 +194,7 @@ function showNotice(message, variant = 'info') {
   if (!message) {
     elNotice.textContent = '';
     elNotice.removeAttribute('data-variant');
+    updateLayoutMetrics();
     return;
   }
   elNotice.textContent = message;
@@ -182,8 +203,10 @@ function showNotice(message, variant = 'info') {
   } else {
     elNotice.removeAttribute('data-variant');
   }
+  updateLayoutMetrics();
   noticeTimer = setTimeout(() => {
     elNotice.textContent = '';
     elNotice.removeAttribute('data-variant');
+    updateLayoutMetrics();
   }, 4000);
 }
