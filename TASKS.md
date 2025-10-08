@@ -1,1 +1,1 @@
-There is still a large gap between the column heading, and the top of the column. Reduce it to 1 rem
+Now the top task in each column is covered, the tasks need to be below the heading of each column
