@@ -1,1 +1,1 @@
-Generate a step by step guide to prepare the app for g-drive storage
+There is still a large gap between the column heading, and the top of the column. Reduce it to 1 rem
