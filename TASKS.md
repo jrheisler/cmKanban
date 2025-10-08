@@ -1,1 +1,1 @@
-Now the top task in each column is covered, the tasks need to be below the heading of each column
+Move the column heading outside the column, and attach them above each column
