@@ -125,14 +125,24 @@ header button:disabled {
   overflow: auto;
 }
 
+.column-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  min-height: 420px;
+  max-height: calc(100vh - var(--app-header-offset) - var(--board-vertical-padding));
+}
+
 .column {
   background: #0c0e13;
   border: 1px solid #1b1f2a;
-  border-radius: 0.6rem;
+  border-top: none;
+  border-bottom-left-radius: 0.6rem;
+  border-bottom-right-radius: 0.6rem;
   display: flex;
   flex-direction: column;
-  min-height: 420px;
-  max-height: calc(100vh - var(--app-header-offset) - var(--board-vertical-padding));
+  flex: 1;
+  min-height: 0;
 }
 
 .col-head {
@@ -140,6 +150,7 @@ header button:disabled {
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  border: 1px solid #1b1f2a;
   border-bottom: 1px solid #1b1f2a;
   position: sticky;
   top: var(--app-header-offset);
@@ -195,6 +206,8 @@ header button:disabled {
   flex-direction: column;
   gap: 0.5rem;
   padding: 0.6rem;
+  flex: 1 1 auto;
+  min-height: 0;
   overflow: auto;
 }
 
