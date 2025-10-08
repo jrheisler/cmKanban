@@ -31,7 +31,8 @@ const rootStyle = document.documentElement?.style ?? null;
 const updateLayoutMetrics = () => {
   if (!rootStyle) return;
   const headerHeight = elHeader?.offsetHeight ?? 0;
-  const noticeHeight = elNotice?.offsetHeight ?? 0;
+  const noticeVisible = Boolean(elNotice?.textContent?.trim());
+  const noticeHeight = noticeVisible ? (elNotice?.offsetHeight ?? 0) : 0;
   const offset = headerHeight + noticeHeight;
   rootStyle.setProperty('--app-header-offset', `${offset}px`);
 };
