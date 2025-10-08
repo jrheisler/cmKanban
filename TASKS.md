@@ -1,1 +1,1 @@
-Move the entire column down with more separation between the column of tasks and the heading on each column
+remove the g-drive button and all integration code and documents
