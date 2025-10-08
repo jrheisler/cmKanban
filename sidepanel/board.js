@@ -292,6 +292,11 @@ function renderColumn(board, column, query, index, totalColumns) {
   const disableLeft = index === 0 ? 'disabled' : '';
   const disableRight = index === totalColumns - 1 ? 'disabled' : '';
 
+  const showAddCardButton = index === 0;
+  const addCardButton = showAddCardButton
+    ? html`<button class="add-card" data-col-id="${column.id}">+ Add card</button>`
+    : '';
+
   return html`<section
       class="column"
       data-col-id="${column.id}"
@@ -350,7 +355,7 @@ function renderColumn(board, column, query, index, totalColumns) {
       <div class="card-list" data-col-id="${column.id}" role="list">
         ${visibleCards.map((card) => cardView(card)).join('')}
       </div>
-      <button class="add-card" data-col-id="${column.id}">+ Add card</button>
+      ${addCardButton}
     </section>`;
 }
 

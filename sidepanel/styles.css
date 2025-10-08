@@ -136,14 +136,16 @@ header button:disabled {
 }
 
 .col-head {
-  padding: 0.55rem 0.6rem;
+  padding: 0.35rem 0.6rem 0.55rem;
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: 0.5rem;
   border-bottom: 1px solid #1b1f2a;
   position: sticky;
   top: var(--app-header-offset);
   background: #0c0e13;
+  border-top-left-radius: 0.6rem;
+  border-top-right-radius: 0.6rem;
   z-index: 5;
 }
 
