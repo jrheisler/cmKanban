@@ -340,53 +340,55 @@ function renderColumn(board, column, query, index, totalColumns) {
         aria-labelledby="col-${column.id}"
       >
         <div class="col-head">
-          <div class="col-title" id="col-${column.id}">${column.name}</div>
-          <div class="wip" aria-hidden="true">${wipText}</div>
-          <div class="col-actions" role="group" aria-label="Column actions">
-            <button
-              class="icon-button col-move-left"
-              data-col-id="${column.id}"
-              ${disableLeft}
-              title="Move column left"
-              aria-label="Move column left"
-            >
-              <span aria-hidden="true">◀</span>
-            </button>
-            <button
-              class="icon-button col-move-right"
-              data-col-id="${column.id}"
-              ${disableRight}
-              title="Move column right"
-              aria-label="Move column right"
-            >
-              <span aria-hidden="true">▶</span>
-            </button>
-            <button
-              class="icon-button col-rename"
-              data-col-id="${column.id}"
-              title="Rename column"
-              aria-label="Rename column"
-            >
-              <span aria-hidden="true">✏️</span>
-            </button>
-            <button
-              class="icon-button col-limit"
-              data-col-id="${column.id}"
-              title="Set max cards"
-              aria-label="Set max cards"
-            >
-              <span aria-hidden="true">#</span>
-            </button>
-            <button
-              class="icon-button col-delete"
-              data-col-id="${column.id}"
-              title="Delete column"
-              aria-label="Delete column"
-            >
-              <span aria-hidden="true">🗑️</span>
-            </button>
+          <div class="col-head-inner">
+            <div class="col-title" id="col-${column.id}">${column.name}</div>
+            <div class="wip" aria-hidden="true">${wipText}</div>
+            <div class="col-actions" role="group" aria-label="Column actions">
+              <button
+                class="icon-button col-move-left"
+                data-col-id="${column.id}"
+                ${disableLeft}
+                title="Move column left"
+                aria-label="Move column left"
+              >
+                <span aria-hidden="true">◀</span>
+              </button>
+              <button
+                class="icon-button col-move-right"
+                data-col-id="${column.id}"
+                ${disableRight}
+                title="Move column right"
+                aria-label="Move column right"
+              >
+                <span aria-hidden="true">▶</span>
+              </button>
+              <button
+                class="icon-button col-rename"
+                data-col-id="${column.id}"
+                title="Rename column"
+                aria-label="Rename column"
+              >
+                <span aria-hidden="true">✏️</span>
+              </button>
+              <button
+                class="icon-button col-limit"
+                data-col-id="${column.id}"
+                title="Set max cards"
+                aria-label="Set max cards"
+              >
+                <span aria-hidden="true">#</span>
+              </button>
+              <button
+                class="icon-button col-delete"
+                data-col-id="${column.id}"
+                title="Delete column"
+                aria-label="Delete column"
+              >
+                <span aria-hidden="true">🗑️</span>
+              </button>
+            </div>
+            <span class="sr-only">${wipAccessible}</span>
           </div>
-          <span class="sr-only">${wipAccessible}</span>
         </div>
         <div class="card-list" data-col-id="${column.id}" role="list">
           ${visibleCards.map((card) => cardView(card)).join('')}
