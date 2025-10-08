@@ -105,7 +105,11 @@ export function addColumn(state, column) {
   return withState(state, (draft) => {
     const board = getActiveBoard(draft);
     if (!board) return;
-    board.columns.push({ ...column });
+    if (!Array.isArray(board.columns)) {
+      board.columns = [];
+    }
+    const nextColumn = { ...column, order: -1 };
+    board.columns.unshift(nextColumn);
     normalizeColumnOrder(board);
   });
 }
