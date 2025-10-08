@@ -15,6 +15,8 @@ const createId = () =>
     ? crypto.randomUUID()
     : `${Date.now().toString(16)}-${Math.random().toString(16).slice(2, 10)}`;
 
+let columnHeadObserver = null;
+
 function syncColumnHeadOffsets(root) {
   if (!(root instanceof HTMLElement)) return;
   const wrappers = root.querySelectorAll('.column-wrapper');
@@ -24,6 +26,39 @@ function syncColumnHeadOffsets(root) {
     if (!(list instanceof HTMLElement)) return;
     const height = head instanceof HTMLElement ? head.offsetHeight : 0;
     list.style.setProperty('--column-head-height', `${height}px`);
+  });
+}
+
+function observeColumnHeadOffsets(root) {
+  if (!(root instanceof HTMLElement)) return;
+
+  if (columnHeadObserver) {
+    columnHeadObserver.disconnect();
+    columnHeadObserver = null;
+  }
+
+  syncColumnHeadOffsets(root);
+
+  if (typeof ResizeObserver !== 'function') return;
+
+  columnHeadObserver = new ResizeObserver((entries) => {
+    entries.forEach((entry) => {
+      const target = entry.target;
+      if (!(target instanceof HTMLElement)) return;
+      const wrapper = target.closest('.column-wrapper');
+      if (!wrapper) return;
+      const list = wrapper.querySelector('.card-list');
+      if (!(list instanceof HTMLElement)) return;
+      const height = entry.contentRect?.height ?? target.offsetHeight ?? 0;
+      list.style.setProperty('--column-head-height', `${height}px`);
+    });
+  });
+
+  const heads = root.querySelectorAll('.column-wrapper .col-head');
+  heads.forEach((head) => {
+    if (head instanceof HTMLElement) {
+      columnHeadObserver.observe(head);
+    }
   });
 }
 
@@ -44,7 +79,7 @@ export function renderBoard(state, { onState, onOpenCard, announce }) {
     .map((column, index) => renderColumn(board, column, query, index, sortedColumns.length))
     .join('');
 
-  syncColumnHeadOffsets(root);
+  observeColumnHeadOffsets(root);
   if (typeof requestAnimationFrame === 'function') {
     requestAnimationFrame(() => syncColumnHeadOffsets(root));
   }
