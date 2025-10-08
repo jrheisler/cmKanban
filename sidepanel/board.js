@@ -286,6 +286,26 @@ export function renderBoard(state, { onState, onOpenCard, announce }) {
       await onState((current) => shiftColumn(current, columnId, 1));
     });
   });
+
+  const applyTopCardOffset = () => {
+    const lists = root.querySelectorAll('.card-list');
+    lists.forEach((list) => {
+      if (!(list instanceof HTMLElement)) return;
+      const firstCard = list.querySelector('.card');
+      if (firstCard instanceof HTMLElement) {
+        const { height } = firstCard.getBoundingClientRect();
+        list.style.setProperty('--first-card-offset', `${height}px`);
+      } else {
+        list.style.setProperty('--first-card-offset', '0px');
+      }
+    });
+  };
+
+  if (typeof requestAnimationFrame === 'function') {
+    requestAnimationFrame(applyTopCardOffset);
+  } else {
+    applyTopCardOffset();
+  }
 }
 
 function renderColumn(board, column, query, index, totalColumns) {
