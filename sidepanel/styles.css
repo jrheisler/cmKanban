@@ -202,10 +202,13 @@ header button:disabled {
 }
 
 .card-list {
+  --column-head-height: 0px;
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-  padding: 0.6rem;
+  padding: 0 0.6rem 0.6rem;
+  padding-top: calc(0.6rem + var(--column-head-height));
+  margin-top: 0;
   flex: 1 1 auto;
   min-height: 0;
   overflow: auto;

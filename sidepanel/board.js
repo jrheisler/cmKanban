@@ -15,6 +15,18 @@ const createId = () =>
     ? crypto.randomUUID()
     : `${Date.now().toString(16)}-${Math.random().toString(16).slice(2, 10)}`;
 
+function syncColumnHeadOffsets(root) {
+  if (!(root instanceof HTMLElement)) return;
+  const wrappers = root.querySelectorAll('.column-wrapper');
+  wrappers.forEach((wrapper) => {
+    const head = wrapper.querySelector('.col-head');
+    const list = wrapper.querySelector('.card-list');
+    if (!(list instanceof HTMLElement)) return;
+    const height = head instanceof HTMLElement ? head.offsetHeight : 0;
+    list.style.setProperty('--column-head-height', `${height}px`);
+  });
+}
+
 export function renderBoard(state, { onState, onOpenCard, announce }) {
   const root = document.getElementById('board');
   const board = getActiveBoard(state);
@@ -31,6 +43,11 @@ export function renderBoard(state, { onState, onOpenCard, announce }) {
   root.innerHTML = sortedColumns
     .map((column, index) => renderColumn(board, column, query, index, sortedColumns.length))
     .join('');
+
+  syncColumnHeadOffsets(root);
+  if (typeof requestAnimationFrame === 'function') {
+    requestAnimationFrame(() => syncColumnHeadOffsets(root));
+  }
 
   const getDropZone = (element) => {
     if (!(element instanceof HTMLElement)) return null;
@@ -316,61 +333,61 @@ function renderColumn(board, column, query, index, totalColumns) {
     : '';
 
   return html`<article class="column-wrapper">
-      <div class="col-head">
-        <div class="col-title" id="col-${column.id}">${column.name}</div>
-        <div class="wip" aria-hidden="true">${wipText}</div>
-        <div class="col-actions" role="group" aria-label="Column actions">
-          <button
-            class="icon-button col-move-left"
-            data-col-id="${column.id}"
-            ${disableLeft}
-            title="Move column left"
-            aria-label="Move column left"
-          >
-            <span aria-hidden="true">◀</span>
-          </button>
-          <button
-            class="icon-button col-move-right"
-            data-col-id="${column.id}"
-            ${disableRight}
-            title="Move column right"
-            aria-label="Move column right"
-          >
-            <span aria-hidden="true">▶</span>
-          </button>
-          <button
-            class="icon-button col-rename"
-            data-col-id="${column.id}"
-            title="Rename column"
-            aria-label="Rename column"
-          >
-            <span aria-hidden="true">✏️</span>
-          </button>
-          <button
-            class="icon-button col-limit"
-            data-col-id="${column.id}"
-            title="Set max cards"
-            aria-label="Set max cards"
-          >
-            <span aria-hidden="true">#</span>
-          </button>
-          <button
-            class="icon-button col-delete"
-            data-col-id="${column.id}"
-            title="Delete column"
-            aria-label="Delete column"
-          >
-            <span aria-hidden="true">🗑️</span>
-          </button>
-        </div>
-        <span class="sr-only">${wipAccessible}</span>
-      </div>
       <section
         class="column"
         data-col-id="${column.id}"
         role="region"
         aria-labelledby="col-${column.id}"
       >
+        <div class="col-head">
+          <div class="col-title" id="col-${column.id}">${column.name}</div>
+          <div class="wip" aria-hidden="true">${wipText}</div>
+          <div class="col-actions" role="group" aria-label="Column actions">
+            <button
+              class="icon-button col-move-left"
+              data-col-id="${column.id}"
+              ${disableLeft}
+              title="Move column left"
+              aria-label="Move column left"
+            >
+              <span aria-hidden="true">◀</span>
+            </button>
+            <button
+              class="icon-button col-move-right"
+              data-col-id="${column.id}"
+              ${disableRight}
+              title="Move column right"
+              aria-label="Move column right"
+            >
+              <span aria-hidden="true">▶</span>
+            </button>
+            <button
+              class="icon-button col-rename"
+              data-col-id="${column.id}"
+              title="Rename column"
+              aria-label="Rename column"
+            >
+              <span aria-hidden="true">✏️</span>
+            </button>
+            <button
+              class="icon-button col-limit"
+              data-col-id="${column.id}"
+              title="Set max cards"
+              aria-label="Set max cards"
+            >
+              <span aria-hidden="true">#</span>
+            </button>
+            <button
+              class="icon-button col-delete"
+              data-col-id="${column.id}"
+              title="Delete column"
+              aria-label="Delete column"
+            >
+              <span aria-hidden="true">🗑️</span>
+            </button>
+          </div>
+          <span class="sr-only">${wipAccessible}</span>
+        </div>
         <div class="card-list" data-col-id="${column.id}" role="list">
           ${visibleCards.map((card) => cardView(card)).join('')}
         </div>
