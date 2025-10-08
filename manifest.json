@@ -11,17 +11,8 @@
     "storage",
     "contextMenus",
     "notifications",
-    "tabs",
-    "identity",
-    "identity.email"
+    "tabs"
   ],
-  "host_permissions": [
-    "https://www.googleapis.com/*"
-  ],
-  "oauth2": {
-    "client_id": "DEV_GOOGLE_CLIENT_ID.apps.googleusercontent.com",
-    "scopes": ["https://www.googleapis.com/auth/drive.appdata"]
-  },
   "side_panel": {
     "default_path": "sidepanel/index.html"
   },
