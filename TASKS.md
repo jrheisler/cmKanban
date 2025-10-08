@@ -1,1 +1,1 @@
-Move the column heading outside the column, and attach them above each column
+The top task in each column is under the heading. Separate them
