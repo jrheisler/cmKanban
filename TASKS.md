@@ -1,1 +1,1 @@
-Move the top task in each column down the height of the card. So, move it down the height of one card.
+Move the entire column down with more separation between the column of tasks and the heading on each column
