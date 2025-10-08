@@ -1,7 +1,7 @@
 :root {
   color-scheme: dark;
   --app-header-offset: 72px;
-  --board-vertical-padding: 1.5rem;
+  --board-vertical-padding: 0.75rem;
 }
 
 * {
@@ -121,7 +121,7 @@ header button:disabled {
   grid-auto-flow: column;
   grid-auto-columns: 280px;
   gap: 0.75rem;
-  padding: 0.75rem;
+  padding: 0 0.75rem 0.75rem;
   overflow: auto;
 }
 
