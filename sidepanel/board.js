@@ -38,8 +38,15 @@ export function renderBoard(state, { onState, onOpenCard, announce }) {
       return element;
     }
     const column = element.closest('.column');
-    if (!column) return null;
-    const list = column.querySelector('.card-list');
+    if (column) {
+      const list = column.querySelector('.card-list');
+      if (list instanceof HTMLElement) {
+        return list;
+      }
+    }
+    const wrapper = element.closest('.column-wrapper');
+    if (!wrapper) return null;
+    const list = wrapper.querySelector('.column .card-list');
     return list instanceof HTMLElement ? list : null;
   };
 
@@ -108,6 +115,10 @@ export function renderBoard(state, { onState, onOpenCard, announce }) {
       if (column?.contains(nextTarget)) {
         return;
       }
+      const wrapper = zone.closest('.column-wrapper');
+      if (wrapper?.contains(nextTarget)) {
+        return;
+      }
     }
     zone.classList.remove('drag-over');
   };
@@ -124,6 +135,13 @@ export function renderBoard(state, { onState, onOpenCard, announce }) {
     columnEl.addEventListener('dragover', allowDrop);
     columnEl.addEventListener('dragleave', handleDragLeave);
     columnEl.addEventListener('drop', handleDrop);
+  });
+
+  root.querySelectorAll('.column-wrapper').forEach((wrapper) => {
+    wrapper.addEventListener('dragenter', allowDrop);
+    wrapper.addEventListener('dragover', allowDrop);
+    wrapper.addEventListener('dragleave', handleDragLeave);
+    wrapper.addEventListener('drop', handleDrop);
   });
 
   root.querySelectorAll('.card').forEach((cardEl) => {
@@ -297,12 +315,7 @@ function renderColumn(board, column, query, index, totalColumns) {
     ? html`<button class="add-card" data-col-id="${column.id}">+ Add card</button>`
     : '';
 
-  return html`<section
-      class="column"
-      data-col-id="${column.id}"
-      role="region"
-      aria-labelledby="col-${column.id}"
-    >
+  return html`<article class="column-wrapper">
       <div class="col-head">
         <div class="col-title" id="col-${column.id}">${column.name}</div>
         <div class="wip" aria-hidden="true">${wipText}</div>
@@ -352,11 +365,18 @@ function renderColumn(board, column, query, index, totalColumns) {
         </div>
         <span class="sr-only">${wipAccessible}</span>
       </div>
-      <div class="card-list" data-col-id="${column.id}" role="list">
-        ${visibleCards.map((card) => cardView(card)).join('')}
-      </div>
-      ${addCardButton}
-    </section>`;
+      <section
+        class="column"
+        data-col-id="${column.id}"
+        role="region"
+        aria-labelledby="col-${column.id}"
+      >
+        <div class="card-list" data-col-id="${column.id}" role="list">
+          ${visibleCards.map((card) => cardView(card)).join('')}
+        </div>
+        ${addCardButton}
+      </section>
+    </article>`;
 }
 
 function matchesQuery(card, query) {
