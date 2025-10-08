@@ -17,7 +17,6 @@ A local-first Kanban board that lives in Chrome's side panel. Built with pure HT
 - Context menu: right-click → **Add to KanbanX**
 - Import/Export JSON (Options page)
 - Dark mode defaults
-- Optional Google Drive backup & restore
 
 ## Data Model
 Stored under `chrome.storage.local` key `kanban.v1`. Default board name is **My Board**. Board naming/multi-board: deferred.
@@ -34,14 +33,6 @@ File attachments are saved in an IndexedDB database named `kanbanx` using the `a
 - `contextMenus` — Right-click to add card
 - `notifications` — Confirmations after context add
 - `tabs` — Provide context for quick-add cards
-- `identity` — Authenticate with Google Drive for sync
-- `https://www.googleapis.com/*` — Access the Google Drive REST API
-
-## Google Drive Sync
-
-Click **Connect to G-Drive** in the side panel header to authorise access to your Drive `appDataFolder`. After a successful setup the extension uploads the current board state to `kanbanx-boards.json` and subsequently reads/writes from that file when loading or mutating the board.
-
-Refer to [docs/google-drive-setup.md](docs/google-drive-setup.md) for the full OAuth configuration checklist, including which [Standard Google Users](docs/standard-google-users.md) account to use and how to replace the placeholder client IDs in `manifest.dev.json` / `manifest.prod.json` before selecting the active manifest. If you are preparing a new checkout for Drive sync, follow the step-by-step [Google Drive storage prep guide](docs/gdrive-storage-prep.md) so the manifests, OAuth consent screen, and runtime checks all line up before testing.
 
 ## QA Checklist
 - Install, open side panel

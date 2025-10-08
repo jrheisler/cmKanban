@@ -14,8 +14,6 @@ import { renderBoard } from './board.js';
 import { escapeHtml } from './templates.js';
 import { openCardDetails, syncCardDetails, closeCardDetails } from './details.js';
 import './keyboard.js';
-import { connectDrive, isDriveConnected, listDriveAppDataFiles } from './drive.js';
-
 const elSearch = document.getElementById('search');
 const elAddColumn = document.getElementById('addColumn');
 const elBoardSelect = document.getElementById('boardSelect');
@@ -23,7 +21,6 @@ const elAddBoard = document.getElementById('addBoard');
 const elRenameBoard = document.getElementById('renameBoard');
 const elDeleteBoard = document.getElementById('deleteBoard');
 const elNotice = document.getElementById('notice');
-const elConnectDrive = document.getElementById('connectDrive');
 const elHeader = document.querySelector('header');
 
 const rootStyle = document.documentElement?.style ?? null;
@@ -55,7 +52,6 @@ if (resizeObserver) {
 window.addEventListener('resize', updateLayoutMetrics, { passive: true });
 
 render();
-updateDriveButton();
 updateLayoutMetrics();
 
 elSearch.addEventListener('input', (event) => {
@@ -74,27 +70,6 @@ elAddColumn.addEventListener('click', () => {
   };
   onState((current) => addColumn(current, nextColumn));
 });
-
-if (elConnectDrive) {
-  elConnectDrive.addEventListener('click', async () => {
-    await updateDriveButton({ connecting: true });
-    try {
-      await listDriveAppDataFiles({ interactive: true });
-      await connectDrive(state);
-      await saveState(state);
-      showNotice('Connected to Google Drive. Boards will sync automatically.', 'success');
-    } catch (error) {
-      console.error('KanbanX: unable to connect to Google Drive', error);
-      const message =
-        error?.message && typeof error.message === 'string'
-          ? error.message
-          : 'Unable to connect to Google Drive. Please try again.';
-      showNotice(message, 'danger');
-    } finally {
-      await updateDriveButton();
-    }
-  });
-}
 
 elBoardSelect.addEventListener('change', () => {
   const nextId = elBoardSelect.value;
@@ -153,23 +128,6 @@ async function onState(updater) {
   state = typeof updater === 'function' ? updater(state) : updater;
   await saveState(state);
   render();
-}
-
-async function updateDriveButton({ connecting = false } = {}) {
-  if (!elConnectDrive) return;
-  if (connecting) {
-    elConnectDrive.disabled = true;
-    elConnectDrive.textContent = 'Connecting…';
-    return;
-  }
-  const connected = await isDriveConnected();
-  if (connected) {
-    elConnectDrive.disabled = true;
-    elConnectDrive.textContent = 'G-Drive Connected';
-  } else {
-    elConnectDrive.disabled = false;
-    elConnectDrive.textContent = 'Connect to G-Drive';
-  }
 }
 
 function renderBoardControls() {
